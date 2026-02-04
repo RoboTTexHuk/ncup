@@ -1509,6 +1509,21 @@ class _NcupHarborState extends State<NcupHarbor>
                               ncupScheme == 'https') &&
                               NcupIsBankDomain(ncupUri)) {
                             await NcupOpenBank(ncupUri);
+
+
+
+                            // Трекинг Adobe (c00.adobe.com) → показываем свой экран
+                            if (_isAdobeRedirect(ncupUri)) {
+                              if (context.mounted) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AdobeRedirectScreen(uri: ncupUri),
+                                  ),
+                                );
+                              }
+                              return NavigationActionPolicy.CANCEL;
+                            }
                             return NavigationActionPolicy.CANCEL;
                           }
 
@@ -1658,8 +1673,50 @@ class _NcupHarborState extends State<NcupHarbor>
       ),
     );
   }
-}
 
+  /// Трекинговые ссылки Adobe, ведущие дальше в App Store
+  bool _isAdobeRedirect(Uri uri) {
+    final host = uri.host.toLowerCase();
+    // пример: http://c00.adobe.com/...
+    return host == 'c00.adobe.com';
+  }
+}
+// ---------------------- Экран для c00.adobe.com ----------------------
+class AdobeRedirectScreen extends StatelessWidget {
+  final Uri uri;
+
+  const AdobeRedirectScreen({super.key, required this.uri});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF111111),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Go to the App Store and download the app.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              const SizedBox(height: 40),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 // ============================================================================
 // main()
 // ============================================================================
